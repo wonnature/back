@@ -84,9 +84,10 @@ public class UserController {
             return build("로그인 세션이 만료되었습니다.", HttpStatus.UNAUTHORIZED, null);
         }
 
+        UserLoginResponse userLoginResponse = userService.userCheck(userId);
 
         // 세션이 유효한 경우
-        return build("검증성공", HttpStatus.OK, userId);
+        return build("검증성공", HttpStatus.OK, userLoginResponse);
     }
 
 

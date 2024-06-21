@@ -78,7 +78,12 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void findUserById(Long userId) {
+    public UserLoginResponse userCheck(Long userId) {
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 유저가 없습니다."));
 
+        log.info("{} : 유저정보 체크/갱신", findUser.getUsername());
+
+        return new UserLoginResponse(findUser.getId(), findUser.getUsername(), findUser.getRole());
     }
 }
