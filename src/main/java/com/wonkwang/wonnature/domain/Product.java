@@ -26,6 +26,10 @@ public class Product extends BaseTimeEntity {
     private String title;
     private String englishTitle;
     private String oneLineIntroduce;
+    private String configuration;
+
+    @Lob
+    private String content;
 
     @Enumerated(EnumType.STRING)
     private ProductType productType;
@@ -45,10 +49,13 @@ public class Product extends BaseTimeEntity {
 
     private void createEntity(ProductDTO productDTO) {
         title = productDTO.getTitle();
+        content = productDTO.getContent();
         storeLink = productDTO.getStoreLink();
         imageUrls = productDTO.getImageUrls();
         productType = productDTO.getProductType();
         oneLineIntroduce = productDTO.getOneLineIntroduce();
+        englishTitle = productDTO.getEnglishTitle();
+        configuration = productDTO.getConfiguration();
     }
 
     public void addHit() {

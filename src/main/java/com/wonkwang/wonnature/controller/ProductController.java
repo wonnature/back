@@ -1,5 +1,6 @@
 package com.wonkwang.wonnature.controller;
 
+import com.wonkwang.wonnature.domain.ProductType;
 import com.wonkwang.wonnature.domain.Role;
 import com.wonkwang.wonnature.dto.ProductDTO;
 import com.wonkwang.wonnature.dto.ResponseDTO;
@@ -44,9 +45,11 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseDTO<Page<ProductDTO>>> getProductList(@PageableDefault(size=30, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<ResponseDTO<List<ProductDTO>>> getProductList(@RequestParam(defaultValue = "화장품") ProductType type) {
 
-        return build("글목록 불러오기 완료", OK, productService.getProductList(pageable));
+        List<ProductDTO> findProducts = productService.getProductListByType(type);
+
+        return build("제품목록 불러오기 완료", OK, findProducts);
     }
 
     @PostMapping

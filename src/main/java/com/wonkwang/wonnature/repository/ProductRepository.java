@@ -1,6 +1,7 @@
 package com.wonkwang.wonnature.repository;
 
 import com.wonkwang.wonnature.domain.Product;
+import com.wonkwang.wonnature.domain.ProductType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -18,5 +19,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @EntityGraph(attributePaths = {"imageUrls"})
     @Query("SELECT p FROM Product p")
     Page<Product> findAllWithImageUrls(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"imageUrls"})
+    List<Product> findByProductType(ProductType productType);
+
+//    @Query("SELECT p.title FROM Product p WHERE p.productType = :productType")
+//    List<String> findProductsNameByType(ProductType productType);
 
 }

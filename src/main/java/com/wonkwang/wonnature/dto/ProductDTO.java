@@ -17,9 +17,11 @@ public class ProductDTO {
     private Long id;
     private Long hit;
     private String title;
+    private String content;
     private String englishTitle;
     private ProductType productType;
     private String oneLineIntroduce;
+    private String configuration;
     private String storeLink;
     private List<String> imageUrls;
 
@@ -27,21 +29,12 @@ public class ProductDTO {
         this.id = product.getId();
         this.hit = product.getHit();
         this.title = product.getTitle();
+        this.content = product.getContent();
         this.productType = product.getProductType();
         this.oneLineIntroduce = product.getOneLineIntroduce();
+        this.configuration = product.getConfiguration();
+        this.englishTitle = product.getEnglishTitle();
         this.storeLink = product.getStoreLink();
         this.imageUrls = product.getImageUrls();
-    }
-
-    // Convert attributes map to list of maps
-    private List<Map<String, String>> convertAttributes(Map<String, String> attributesMap) {
-        return attributesMap.entrySet().stream()
-                .map(entry -> {
-                    Map<String, String> map = new LinkedHashMap<>();
-                    map.put("key", entry.getKey());
-                    map.put("value", entry.getValue());
-                    return map;
-                })
-                .collect(Collectors.toList());
     }
 }
