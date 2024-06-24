@@ -42,9 +42,9 @@ public class S3Service {
 
         String baseFilename = originalFilename.substring(0, dotIndex);
 
-        // 원본 파일 이름을 최대 5자로 제한
-        if (baseFilename.length() > 5) {
-            baseFilename = baseFilename.substring(0, 5);
+        // 원본 파일 이름을 최대 15자로 제한
+        if (baseFilename.length() > 15) {
+            baseFilename = baseFilename.substring(0, 15);
         }
 
         UUID uuid = UUID.randomUUID();
@@ -59,16 +59,16 @@ public class S3Service {
                 .withCannedAcl(CannedAccessControlList.PublicRead));
 
         String imageUrl = amazonS3.getUrl(bucketName, folderName + fileName).toString();
-        log.info("{} 이미지 업로드 완료", imageUrl);
-        discordService.sendActivityMessage(imageUrl + " : 이미지 업로드 완료");
+        log.info("{} 파일 업로드 완료", imageUrl);
+        discordService.sendActivityMessage(imageUrl + " : 파일 업로드 완료");
         return imageUrl;
     }
 
     public void deleteFile(String fileUrl)  {
         String fileName = extractFileNameFromUrl(fileUrl);
         amazonS3.deleteObject(bucketName, folderName + fileName);
-        log.info("{} 이미지 삭제 완료", fileName);
-        discordService.sendActivityMessage(fileUrl + " : 이미지 삭제 완료");
+        log.info("{} 파일 삭제 완료", fileName);
+        discordService.sendActivityMessage(fileUrl + " : 파일 삭제 완료");
     }
 
     private String extractFileNameFromUrl(String imageUrl) {
