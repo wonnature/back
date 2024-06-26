@@ -12,10 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -24,12 +21,11 @@ public class S3Service {
 
     private final AmazonS3 amazonS3;
     private final DiscordService discordService;
-    
+
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
-    private final String folderName = "tests/";
 
-    public String uploadFile(MultipartFile file) throws IOException {
+    public String uploadFile(String folderName, MultipartFile file) throws IOException {
 
         String originalFilename = file.getOriginalFilename();
 
@@ -47,42 +43,33 @@ public class S3Service {
             baseFilename = baseFilename.substring(0, 15);
         }
 
-        UUID uuid = UUID.randomUUID();
-        String base64UUID = Base64.getUrlEncoder().withoutPadding().encodeToString(asBytes(uuid)); //uuid 길이 압축
-
-        String fileName = base64UUID + "-" + baseFilename + extension;
+        String fileName = baseFilename + extension;
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
 
-        amazonS3.putObject(new PutObjectRequest(bucketName, folderName + fileName, file.getInputStream(), metadata)
+        amazonS3.putObject(new PutObjectRequest(bucketName, folderName + "/" + fileName, file.getInputStream(), metadata)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
 
-        String imageUrl = amazonS3.getUrl(bucketName, folderName + fileName).toString();
+        String imageUrl = amazonS3.getUrl(bucketName, folderName + "/" + fileName).toString();
         log.info("{} 파일 업로드 완료", imageUrl);
         discordService.sendActivityMessage(imageUrl + " : 파일 업로드 완료");
         return imageUrl;
     }
 
-    public void deleteFile(String fileUrl)  {
-        String fileName = extractFileNameFromUrl(fileUrl);
-        amazonS3.deleteObject(bucketName, folderName + fileName);
-        log.info("{} 파일 삭제 완료", fileName);
+    public void deleteFile(String fileUrl) {
+        String objectKey = extractObjectKeyFromUrl(fileUrl);
+        amazonS3.deleteObject(bucketName, objectKey);
+        log.info("{} 파일 삭제 완료", objectKey);
         discordService.sendActivityMessage(fileUrl + " : 파일 삭제 완료");
     }
 
-    private String extractFileNameFromUrl(String imageUrl) {
+    private String extractObjectKeyFromUrl(String imageUrl) {
         if (imageUrl == null || imageUrl.isEmpty()) {
             throw new IllegalArgumentException("URL이 null이거나 비어 있습니다.");
         }
         String decodedUrl = URLDecoder.decode(imageUrl, StandardCharsets.UTF_8);
-        return decodedUrl.substring(decodedUrl.lastIndexOf('/') + 1);
-    }
-
-    private byte[] asBytes(UUID uuid) { //uuid 길이 압축
-        ByteBuffer buffer = ByteBuffer.wrap(new byte[16]);
-        buffer.putLong(uuid.getMostSignificantBits());
-        buffer.putLong(uuid.getLeastSignificantBits());
-        return buffer.array();
+        // "s3.amazonaws.com/" 이후의 경로 추출
+        return decodedUrl.substring(decodedUrl.indexOf(".com/") + 5); // 5는 ".com/"의 길이
     }
 }

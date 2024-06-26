@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,9 +88,13 @@ public class ProductController {
             return build("권한 부족", FORBIDDEN, null);
         }
 
+        // 현재 날짜와 시간을 사용하여 폴더 이름 생성
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        String folderName = "product/" + LocalDateTime.now().format(formatter);
+
         List<String> imageUrls = new ArrayList<>();
         for (MultipartFile file : files) {
-            String url = s3Service.uploadFile(file);
+            String url = s3Service.uploadFile(folderName, file);
             imageUrls.add(url);
         }
         System.out.println("Uploaded files: " + imageUrls.size()); // 업로드된 파일 수 출력
