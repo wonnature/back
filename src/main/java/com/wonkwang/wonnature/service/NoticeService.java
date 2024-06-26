@@ -5,6 +5,7 @@ import com.wonkwang.wonnature.dto.NoticeDTO;
 import com.wonkwang.wonnature.repository.NoticeRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,9 +13,11 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NoticeService {
 
     private final NoticeRepository noticeRepository;
+    private final DiscordService discordService;
     private final S3Service s3Service;
 
     public Long createNotice(NoticeDTO noticeDTO) {
@@ -27,6 +30,9 @@ public class NoticeService {
                 .build();
 
         Notice savedNotice = noticeRepository.save(notice);
+
+        discordService.sendActivityMessage(noticeDTO.toString() + " : 공지를 등록했습니다.");
+        log.info("{} : 공지를 등록했습니다.", noticeDTO.toString());
 
         return savedNotice.getId();
     }
@@ -54,6 +60,9 @@ public class NoticeService {
         deletedFileUrls.forEach(s3Service::deleteFile);
 
         findNotice.updateNotice(noticeDTO.getTitle(), sanitizedContent, newFileUrls);
+
+        discordService.sendActivityMessage(noticeDTO.toString() + " : 공지를 수정했습니다.");
+        log.info("{} : 공지 수정 완료", noticeDTO.toString());
     }
 
     @Transactional
@@ -80,6 +89,9 @@ public class NoticeService {
         imageUrls.forEach(s3Service::deleteFile);
 
         noticeRepository.delete(findNotice);
+
+        discordService.sendActivityMessage(findNotice.getTitle() + " : 공지를 삭제했습니다.");
+        log.info("{} : 공지를 삭제했습니다.", findNotice.getTitle());
     }
 
     private String sanitize(String content) {
