@@ -6,9 +6,12 @@ import com.wonkwang.wonnature.repository.NoticeRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -75,7 +78,12 @@ public class NoticeService {
     }
 
     public List<NoticeDTO> getNoticeList() {
-        List<Notice> notices = noticeRepository.findAll();
+        List<Notice> notices = noticeRepository.findAll(Sort.by(Sort.Direction.DESC, "createdDate"));
+        if (notices.isEmpty()) {
+            List<NoticeDTO> emptyList = new ArrayList<>();
+            emptyList.add(new NoticeDTO(0L, 0L, "현재 작성된 공지가 없습니다.", "", new ArrayList<>(), LocalDateTime.now(), null));
+            return emptyList;
+        }
 
         return notices.stream().map(NoticeDTO::new).toList();
 

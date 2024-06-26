@@ -2,6 +2,7 @@ package com.wonkwang.wonnature.dto;
 
 import com.wonkwang.wonnature.domain.Notice;
 import com.wonkwang.wonnature.domain.PhotoGallery;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class PhotoGalleryDTO {
 
     private Long id;

@@ -1,14 +1,18 @@
 package com.wonkwang.wonnature.service;
 
 import com.wonkwang.wonnature.domain.PhotoGallery;
+import com.wonkwang.wonnature.dto.NoticeDTO;
 import com.wonkwang.wonnature.dto.PhotoGalleryDTO;
 import com.wonkwang.wonnature.repository.PhotoGalleryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -40,7 +44,7 @@ public class PhotoGalleryService {
     @Transactional
     public void updatePhotoGallery(Long photoGalleryId, PhotoGalleryDTO photoGalleryDTO) {
         PhotoGallery findPhotoGallery = photoGalleryRepository.findPhotoGalleryWithUrlsById(photoGalleryId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 공지가 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("해당 포토갤러리가 없습니다."));
 
         String sanitizedContent = sanitize(photoGalleryDTO.getContent()); //악성 스크립트 제거
         photoGalleryDTO.setContent(sanitizedContent);
@@ -68,22 +72,26 @@ public class PhotoGalleryService {
     @Transactional
     public PhotoGalleryDTO getOnePhotoGallery(Long photoGalleryId) {
         PhotoGallery photoGallery = photoGalleryRepository.findById(photoGalleryId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 공지가 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("해당 포토갤러리가 없습니다."));
         photoGallery.addHit();
 
         return new PhotoGalleryDTO(photoGallery);
     }
 
     public List<PhotoGalleryDTO> getPhotoGalleryList() {
-        List<PhotoGallery> photoGallerys = photoGalleryRepository.findAll();
-
+        List<PhotoGallery> photoGallerys = photoGalleryRepository.findAll(Sort.by(Sort.Direction.DESC, "createdDate"));
+        if (photoGallerys.isEmpty()) {
+            List<PhotoGalleryDTO> emptyList = new ArrayList<>();
+            emptyList.add(new PhotoGalleryDTO(0L, 0L, "현재 작성된 포토갤러리가 없습니다.", "", new ArrayList<>(), LocalDateTime.now(), null));
+            return emptyList;
+        }
         return photoGallerys.stream().map(PhotoGalleryDTO::new).toList();
 
     }
 
     public void deleteOnePhotoGallery(Long photoGalleryId) {
         PhotoGallery findPhotoGallery = photoGalleryRepository.findPhotoGalleryWithUrlsById(photoGalleryId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 공지가 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("해당 포토갤러리가 없습니다."));
 
         List<String> imageUrls = findPhotoGallery.getImageUrls();
         imageUrls.forEach(s3Service::deleteFile);

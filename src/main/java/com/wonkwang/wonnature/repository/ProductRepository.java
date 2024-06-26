@@ -21,6 +21,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findAllWithImageUrls(Pageable pageable);
 
     @EntityGraph(attributePaths = {"imageUrls"})
+    @Query("SELECT p FROM Product p WHERE p.productType = :productType ORDER BY p.createdDate DESC")
     List<Product> findByProductType(ProductType productType);
 
 //    @Query("SELECT p.title FROM Product p WHERE p.productType = :productType")

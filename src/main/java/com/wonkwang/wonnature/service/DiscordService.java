@@ -21,7 +21,7 @@ public class DiscordService {
     private String activityUrl;
 
     private void sendMessage(String url, String message) {
-        /*
+
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -37,7 +37,7 @@ public class DiscordService {
             String jsonPayload = String.format("{\"content\": \"%s\\nTimestamp: %s\"}", escapeJson(chunk), timestamp);
             HttpEntity<String> request = new HttpEntity<>(jsonPayload, headers);
             restTemplate.postForObject(url, request, String.class);
-        }*/
+        }
     }
 
     public void sendErrorMessage(String message) {
