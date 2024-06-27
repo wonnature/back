@@ -20,7 +20,7 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         List<User> all = userRepository.findAll();
         if (all.isEmpty()){
-            userService.join(new UserDTO("admin","1234")); //테스트용 데이터
+//            userService.join(new UserDTO("admin","1234")); //테스트용 데이터
         }
 
     }
