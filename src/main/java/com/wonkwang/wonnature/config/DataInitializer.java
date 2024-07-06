@@ -14,8 +14,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
-    private final UserService userService;
     private final UserRepository userRepository;
+
     @Override
     public void run(String... args) throws Exception {
         List<User> all = userRepository.findAll();
