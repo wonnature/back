@@ -14,32 +14,17 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PhotoGallery extends BaseTimeEntity {
+public class History extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Builder.Default
-    private Long hit = 0L; // 조회수
-
-    private String title;
-
     @Lob
     @Column(columnDefinition = "LONGTEXT")
     private String content;
 
-    @ElementCollection
-    @OrderColumn(name = "image_url_order")
-    private List<String> imageUrls = new ArrayList<>();
-
-    public void addHit() {
-        hit += 1;
-    }
-
-    public void updatePhotoGallery(String title, String content, List<String> imageUrls) {
-        this.title = title;
+    public void updateHistory(String content) {
         this.content = content;
-        this.imageUrls = imageUrls;
     }
 }

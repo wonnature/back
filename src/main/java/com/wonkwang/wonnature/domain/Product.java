@@ -8,9 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Getter
@@ -30,6 +28,7 @@ public class Product extends BaseTimeEntity {
     private String configuration;
 
     @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String content;
 
     @Enumerated(EnumType.STRING)
@@ -39,7 +38,7 @@ public class Product extends BaseTimeEntity {
 
     @ElementCollection
     @OrderColumn(name = "image_url_order")
-    private List<String> imageUrls = new ArrayList<>();;
+    private List<String> imageUrls = new ArrayList<>();
 
     public Product(ProductDTO productDTO) {
         createEntity(productDTO);
