@@ -34,7 +34,7 @@ public class UserService {
 
         if (!passwordEncoder.matches(userDTO.getPassword(), findUser.getPassword())) {
             handleFailedLoginAttempt(findUser); //로그인 실패 횟수 증가
-            throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
+            throw new BadCredentialsException("비밀번호가 일치하지 않습니다. \n5회 이상 로그인 실패 시 계정이 15분동안 잠깁니다.");
         }
 
         log.info("{} : 로그인", userDTO.getUsername());
@@ -45,7 +45,6 @@ public class UserService {
     }
 
     private void handleFailedLoginAttempt(User user) {
-        System.out.println("handle 실행");
         int newFailedAttempts = user.getFailedLoginAttempts() + 1;
         user.setFailedLoginAttempts(newFailedAttempts);
         if (newFailedAttempts % 5 == 0) {
