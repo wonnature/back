@@ -1,0 +1,14 @@
+[Unit]
+Description=Wonnature Spring Boot Application
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/home/ubuntu
+ExecStart=/usr/bin/java -jar /home/ubuntu/wonnature.jar
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

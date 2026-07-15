@@ -1,0 +1,49 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}   # Actions 탭에서 수동 실행도 가능
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # application.yml 은 gitignore 라 repo 에 없다. Secret 에서 복원해 빌드에 포함.
+      - name: Inject application.yml
+        env:
+          APPLICATION_YML: ${{ secrets.APPLICATION_YML }}
+        run: |
+          mkdir -p src/main/resources
+          printf '%s' "$APPLICATION_YML" > src/main/resources/application.yml
+
+      - name: Build bootJar
+        run: |
+          chmod +x gradlew
+          ./gradlew clean bootJar -x test
+
+      - name: Deploy to EC2
+        env:
+          SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          set -e
+          mkdir -p ~/.ssh
+          printf '%s' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          JAR=$(ls build/libs/*.jar | head -1)
+          echo "Uploading $JAR"
+          ssh -i ~/.ssh/deploy_key ubuntu@"$EC2_HOST" 'mkdir -p /home/ubuntu/deploy'
+          scp -i ~/.ssh/deploy_key "$JAR" ubuntu@"$EC2_HOST":/home/ubuntu/deploy/wonnature.jar.new
+          scp -i ~/.ssh/deploy_key deploy/remote-deploy.sh ubuntu@"$EC2_HOST":/home/ubuntu/deploy/remote-deploy.sh
+          ssh -i ~/.ssh/deploy_key ubuntu@"$EC2_HOST" 'bash /home/ubuntu/deploy/remote-deploy.sh'
